@@ -1,2 +1,2 @@
 # full-stack-open-exercises
-Exercises for a full stack course by the University of Helsinki
+My answers to exercises for a [full stack course](https://fullstackopen.com/en/) by the University of Helsinki
