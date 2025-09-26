@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import dbPersons from './services/persons'
 
 const Filter = ({filterText, handleFilterInput}) => {
     return(
@@ -30,23 +30,23 @@ const PersonForm = ({addToPhoneBook, newNumber, newName, handleNewNameInput, han
     )
 }
 
-const NumberList = ({persons, filterText}) => {
+const NumberList = ({persons, filterText, handleDeletePerson}) => {
     return (
         <>
             {persons.map(person => {
                 const re = new RegExp(filterText, "i")
                 if (re.test(person.name)) {
-                    return <Person key={person.name} person={person} />
+                    return <Person key={person.name} person={person} handleDeletePerson={() => handleDeletePerson(person)} />
                 }
             })}
         </>
     )
 }
 
-const Person = ({person}) => {
+const Person = ({person, handleDeletePerson}) => {
     return (
         <>
-            {person.name} {person.number}<br />
+            {person.name} {person.number} <button onClick={handleDeletePerson}>delete</button> <br />
         </>
     )
 }
@@ -54,11 +54,9 @@ const Person = ({person}) => {
 const App = () => {
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then((res) => {
-        setPersons(res.data)
-      })
+    dbPersons
+      .getAll()
+      .then(initialPersons => setPersons(initialPersons))
   }, [])
 
   const [persons, setPersons] = useState([])
@@ -75,26 +73,41 @@ const App = () => {
   const handleFilterInput = (event) => {
     setFilterText(event.target.value)
   }
+  const handleDeletePerson = (targetPerson) => {
+    if (window.confirm(`Delete ${targetPerson.name}?`)) {
+      dbPersons
+      .deletePerson(targetPerson.id)
+      .then( deletedPerson => setPersons(persons.filter(person => person.id != deletedPerson.id)))
+    }
+  }
   const addToPhoneBook = (event) => {
     event.preventDefault()
-    if (persons.find(person => person.name.toLowerCase() == newName.toLowerCase())) {
-        alert(`${newName} is already added to the phonebook.`)
-        return
+    if (newName == "" || newNumber == "")  {
+      alert(`Please fill all fields.`)
+      return
     }
     if (persons.find(person => person.number == newNumber)) {
-        alert(`${newNumber} is already in use.`)
-        return
-    }
-    if (newName == "" || newNumber == "")  {
-        alert(`Please fill all fields.`)
-        return
+      alert(`${newNumber} is already in use.`)
+      return
     }
     if (newNumber.match(/^[\d-\s]+$/g) === null) {
-        alert(`${newNumber} is not a valid number.`)
+      alert(`${newNumber} is not a valid number.`)
+      return
+    }
+    const targetPerson = persons.find(person => person.name.toLowerCase() == newName.toLowerCase())
+    if (targetPerson) {
+        if (window.confirm(`${newName} is already in the phonebook. Update the phone number?`)) {
+          dbPersons
+            .put(targetPerson.id, {name: targetPerson.name, number: newNumber})
+            .then(updatedEntry => setPersons(persons.map(person => person.id == targetPerson.id ? updatedEntry : person)))
+          setNewName("")
+          setNewNumber("")
+        }
         return
     }
-    const newNameList = persons.concat( {name: newName, number: newNumber})
-    setPersons(newNameList)
+    const newPerson = { name: newName, number: newNumber }
+    dbPersons.create(newPerson)
+      .then(newEntry => setPersons(persons.concat(newEntry)))
     setNewName("")
     setNewNumber("")
   }
@@ -117,7 +130,7 @@ const App = () => {
 
         <h3>Numbers</h3>
 
-        <NumberList persons={persons} filterText={filterText} />
+        <NumberList persons={persons} filterText={filterText} handleDeletePerson={handleDeletePerson} />
     </div>
   )
 }
