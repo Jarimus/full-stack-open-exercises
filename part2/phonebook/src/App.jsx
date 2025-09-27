@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import dbPersons from './services/persons'
+import Notification from './components/Notification'
+import ErrorNotification from './components/ErrorNotification'
 
 const Filter = ({filterText, handleFilterInput}) => {
     return(
@@ -63,6 +65,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterText, setFilterText] = useState('')
+  const [notification, setNotification] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const handleNewNameInput = (event) => {
     setNewName(event.target.value)
@@ -78,6 +82,13 @@ const App = () => {
       dbPersons
       .deletePerson(targetPerson.id)
       .then( deletedPerson => setPersons(persons.filter(person => person.id != deletedPerson.id)))
+      .catch(() => {
+        setErrorMessage(`Information of ${targetPerson.name} has already been removed from the server.`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000);
+        setPersons(persons.filter(person => person.id != targetPerson.id))
+      })
     }
   }
   const addToPhoneBook = (event) => {
@@ -99,7 +110,20 @@ const App = () => {
         if (window.confirm(`${newName} is already in the phonebook. Update the phone number?`)) {
           dbPersons
             .put(targetPerson.id, {name: targetPerson.name, number: newNumber})
-            .then(updatedEntry => setPersons(persons.map(person => person.id == targetPerson.id ? updatedEntry : person)))
+            .then(updatedEntry => {
+              setPersons(persons.map(person => person.id == targetPerson.id ? updatedEntry : person))
+              setNotification(`Number for ${updatedEntry.name} updated.`)
+              setTimeout(() => {
+                setNotification(null)
+              }, 3000)
+            })
+            .catch(() => {
+              setErrorMessage(`Information of ${targetPerson.name} has already been removed from the server.`)
+              setTimeout(() => {
+                setErrorMessage(null)
+              }, 3000);
+              setPersons(persons.filter(person => person.id != targetPerson.id))
+            })
           setNewName("")
           setNewNumber("")
         }
@@ -108,6 +132,10 @@ const App = () => {
     const newPerson = { name: newName, number: newNumber }
     dbPersons.create(newPerson)
       .then(newEntry => setPersons(persons.concat(newEntry)))
+    setNotification(`Added ${newPerson.name}`)
+    setTimeout(() => {
+      setNotification(null)
+    }, 3000)
     setNewName("")
     setNewNumber("")
   }
@@ -115,6 +143,8 @@ const App = () => {
   return (
     <div>
         <h2>Phonebook</h2>
+        <Notification notification={notification} />
+        <ErrorNotification message={errorMessage} />
 
         <Filter filterText={filterText} handleFilterInput={handleFilterInput} />
 
