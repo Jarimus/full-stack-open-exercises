@@ -1,0 +1,43 @@
+GET http://localhost:3001/api/persons HTTP/1.1
+
+### Successful POST
+
+POST http://localhost:3001/api/persons HTTP/1.1
+content-type: application/json
+
+{
+  "name": "test note 1",
+  "number": "123-456",
+  "random": "extra stuff not supposed to go into database"
+}
+
+### Successful POST
+
+POST http://localhost:3001/api/persons HTTP/1.1
+content-type: application/json
+
+{
+  "name": "test note 2",
+  "number": "456-789",
+  "random": "more extra stuff"
+}
+
+### Missing name
+
+POST http://localhost:3001/api/persons HTTP/1.1
+content-type: application/json
+
+{
+  "number": "456-789",
+  "random": "more extra stuff"
+}
+
+### Missing number
+
+POST http://localhost:3001/api/persons HTTP/1.1
+content-type: application/json
+
+{
+  "name": "test note 4",
+  "random": "more extra stuff"
+}

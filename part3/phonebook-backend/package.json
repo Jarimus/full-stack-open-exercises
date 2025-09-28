@@ -1,0 +1,17 @@
+{
+  "name": "phonebook-backend",
+  "version": "1.0.0",
+  "description": "for course 'full stack open', part3",
+  "license": "ISC",
+  "author": "Jari Ahonen",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
