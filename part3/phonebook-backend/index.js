@@ -1,7 +1,14 @@
 const express = require('express')
+var morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+
+// morgan logging
+morgan.token("data", (req, res) => JSON.stringify(req.body))
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms :data')
+)
 
 let notes = [
   { 
