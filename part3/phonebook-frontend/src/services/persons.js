@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const PORT_BACKEND = process.env.PORT | 3001
-const baseUrl = `http://localhost:${PORT_BACKEND}/api/persons`
+const baseUrl = import.meta.env.VITE_API_BASE_URL
+console.log("frontend uses baseurl:", baseUrl)
 
 const getAll = () => {
   const promise = axios.get(baseUrl)

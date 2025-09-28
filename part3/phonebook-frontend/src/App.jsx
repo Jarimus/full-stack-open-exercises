@@ -33,6 +33,7 @@ const PersonForm = ({addToPhoneBook, newNumber, newName, handleNewNameInput, han
 }
 
 const NumberList = ({persons, filterText, handleDeletePerson}) => {
+  if (persons) {
     return (
         <>
             {persons.map(person => {
@@ -43,6 +44,8 @@ const NumberList = ({persons, filterText, handleDeletePerson}) => {
             })}
         </>
     )
+  }
+  return null
 }
 
 const Person = ({person, handleDeletePerson}) => {

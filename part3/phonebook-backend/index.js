@@ -8,12 +8,12 @@ const PORT_BACKEND = process.env.PORT | 3001
 const PORT_FRONTEND = 5173
 
 // static site
-app.use(express.static('app'))
+app.use(express.static('dist'))
 
 // cors
 var corsOptions = {
   origin: `http://localhost:${PORT_FRONTEND}`,
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200
 }
 app.use(cors(corsOptions))
 
