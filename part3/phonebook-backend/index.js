@@ -7,6 +7,9 @@ const app = express()
 const PORT_BACKEND = process.env.PORT | 3001
 const PORT_FRONTEND = 5173
 
+// static site
+app.use(express.static('app'))
+
 // cors
 var corsOptions = {
   origin: `http://localhost:${PORT_FRONTEND}`,
@@ -102,5 +105,5 @@ app.post("/api/persons", (req, res) => {
 })
 
 app.listen(PORT_BACKEND, () => {
-  console.log(`Server running: ${"http://localhost:"+PORT_BACKEND+"/"}`)
+  console.log(`Server running on port ${PORT_BACKEND}`)
 })
