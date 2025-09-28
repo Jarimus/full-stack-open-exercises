@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const PORT_BACKEND = 3001
+const PORT_BACKEND = process.env.PORT | 3001
 const baseUrl = `http://localhost:${PORT_BACKEND}/api/persons`
 
 const getAll = () => {
