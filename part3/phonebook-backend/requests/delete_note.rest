@@ -2,16 +2,4 @@ GET http://localhost:3001/api/persons HTTP/1.1
 
 ###
 
-DELETE http://localhost:3001/api/persons/1 HTTP/1.1
-
-###
-
-DELETE http://localhost:3001/api/persons/2 HTTP/1.1
-
-###
-
-DELETE http://localhost:3001/api/persons/3 HTTP/1.1
-
-###
-
-DELETE http://localhost:3001/api/persons/4 HTTP/1.1
+DELETE http://localhost:3001/api/persons/81456 HTTP/1.1

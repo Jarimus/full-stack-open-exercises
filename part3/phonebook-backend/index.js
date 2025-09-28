@@ -1,7 +1,20 @@
 const express = require('express')
+const cors = require('cors')
 var morgan = require('morgan')
 const app = express()
 
+// constants
+const PORT_BACKEND = process.env.PORT | 3001
+const PORT_FRONTEND = 5173
+
+// cors
+var corsOptions = {
+  origin: `http://localhost:${PORT_FRONTEND}`,
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors(corsOptions))
+
+// express json
 app.use(express.json())
 
 // morgan logging
@@ -10,6 +23,7 @@ app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :data')
 )
 
+// Phonebook notes in memory
 let notes = [
   { 
     "id": "1",
@@ -81,15 +95,12 @@ app.post("/api/persons", (req, res) => {
   const dbNote = {
     name: reqNote.name,
     number: reqNote.number,
-    id: Math.floor(Math.random()*100000)
+    id: String(Math.floor(Math.random()*100000))
   } 
   notes.push(dbNote)
   res.json(dbNote)
 })
 
-// Error (404) for POST: name of number missing, and name already exists
-
-const PORT = 3001
-app.listen(PORT, () => {
-  console.log(`Server running: ${"http://localhost:"+PORT+"/"}`)
+app.listen(PORT_BACKEND, () => {
+  console.log(`Server running: ${"http://localhost:"+PORT_BACKEND+"/"}`)
 })
