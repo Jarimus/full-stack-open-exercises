@@ -1,0 +1,7 @@
+### GET all to check
+
+GET http://localhost:3001/api/persons HTTP/1.1
+
+### DELETE one
+
+DELETE http://localhost:3001/api/persons/68da95b6141dac366453848c HTTP/1.1

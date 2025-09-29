@@ -1,0 +1,33 @@
+### GET all to check
+
+GET http://localhost:3001/api/persons
+
+### POST (for initial resource)
+# @name createResource
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "Mary Joe",
+  "number": "123-456"
+}
+
+### PUT (to update resource)
+
+PUT http://localhost:3001/api/persons/{{createResource.response.body.id}}
+Content-Type: application/json
+
+{
+  "name": "Mary Joe",
+  "number": "456-789"
+}
+
+### PUT (another to continue testing)
+
+PUT http://localhost:3001/api/persons/{{createResource.response.body.id}}
+Content-Type: application/json
+
+{
+  "name": "Mary Joe",
+  "number": "123-456"
+}

@@ -1,21 +1,12 @@
+require('dotenv').config()
 const express = require('express')
-const cors = require('cors')
 var morgan = require('morgan')
+const Person = require('./models/person')
+
 const app = express()
 
-// constants
-const PORT_BACKEND = process.env.PORT | 3001
-const PORT_FRONTEND = 5173
-
-// static site
+// frontend
 app.use(express.static('dist'))
-
-// cors
-var corsOptions = {
-  origin: `http://localhost:${PORT_FRONTEND}`,
-  optionsSuccessStatus: 200
-}
-app.use(cors(corsOptions))
 
 // express json
 app.use(express.json())
@@ -26,84 +17,110 @@ app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :data')
 )
 
-// Phonebook notes in memory
-let notes = [
-  { 
-    "id": "1",
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": "2",
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": "3",
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": "4",
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
-
-// GET all notes
+// GET: /api/persons
 app.get("/api/persons", (req, res) => {
-  res.json(notes)
+  Person.find({}).then(persons => {
+    res.json(persons)
+  })
 })
 
-// GET info
+// GET: /info
 app.get("/info", (req, res) => {
-  res.send(`<p>Phonebook has info for ${notes.length} people</p>
-    ${new Date()}`)
+  Person.find({}).then( persons => {
+    res.send(`<p>Phonebook has info for ${persons.length} people</p> ${new Date()}`)
+  })
 })
 
-// GET one note
-app.get("/api/persons/:id", (req, res) => {
+// GET: /api/persons/id
+app.get("/api/persons/:id", (req, res, next) => {
   const id = req.params.id
-  const note = notes.find(note => note.id === id)
-  if (note) {
-    res.json(note).end()
-    return
-  }
-  res.status(404).json({error: "resource does not exist"}).end()
+  Person
+    .findById(id)
+    .then(person => {
+      if (person) {
+        res.json(person)
+      } else {
+        res.status(400)
+        res.send({error: "resource does not exist"})
+      }
+    })
+    .catch(error => {
+      next(error)
+    })
 })
 
-// DELETE: /api/persons/id (delete one)
+// DELETE: /api/persons/id
 app.delete("/api/persons/:id", (req, res) => {
   const id = req.params.id
-  const targetNote = notes.find(note => note.id === id)
-  if (targetNote) {
-    notes = notes.filter( note => note.id !== id)
-    res.json(targetNote).end()
-    return
-  }
-  res.status(404).json({error: "resource does not exist"}).end()
+  Person.findByIdAndDelete(id).then(person => {
+    if (!person) {
+      res.status(404).send({error: "resource does not exist"})
+    } else {
+      res.json(person)
+    }
+  })
 })
 
-// POST /api/persons (add entry)
+// POST: /api/persons 
 app.post("/api/persons", (req, res) => {
-  const reqNote = req.body
-  if (reqNote.name === undefined || reqNote.number === undefined) {
-    res.status(400).json({ error: "required fields not provided" }).end()
-    return
+  const body = req.body
+
+  if (!body.name || !body.number) {
+    return res.status(400).json({ error: "content missing" })
   }
-  if (notes.find(note => note.name === reqNote.name)) {
-    res.status(400).json({ error: "name already exists in the phonebook" }).end()
-    return
-  }
-  const dbNote = {
-    name: reqNote.name,
-    number: reqNote.number,
-    id: String(Math.floor(Math.random()*100000))
-  } 
-  notes.push(dbNote)
-  res.json(dbNote)
+  const person = new Person({
+    name: body.name,
+    number: body.number
+  })
+  person.save().then( savedPerson => {
+    res.json(savedPerson)
+  })
 })
 
-app.listen(PORT_BACKEND, () => {
-  console.log(`Server running on port ${PORT_BACKEND}`)
+app.put("/api/persons/:id", (req, res, next) => {
+  const { name, number } = req.body
+
+  Person
+    .findById(req.params.id)
+    .then(person => {
+      if (!person) {
+        res.status(400).send({ error: "resource does not exist" }).end()
+        return
+      }
+      [person.name, person.number] = [name, number]
+      return person.save()
+        .then( savedPerson => {
+          res.json(savedPerson)
+        })
+        .catch(error => {
+          next(error)
+        })
+    })
+    .catch(error => {
+      next(error)
+    })
+})
+
+// Handling unknown endpoints
+const unknownEnpoint = (req, res) => {
+  res.status(404).send({ error: "unknown endpoint" })
+}
+app.use(unknownEnpoint)
+
+// Error handling
+const errorHandler = (error, req, res, next) => {
+  console.error("Error:", error.message)
+
+  if (error.name === 'CastError') {
+    return res.status(400).send({ error: "malformatted id" })
+  }
+
+  next(error)
+}
+app.use(errorHandler)
+
+// Start listening for traffic
+const PORT = process.env.PORT | 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })

@@ -80,6 +80,7 @@ const App = () => {
   const handleFilterInput = (event) => {
     setFilterText(event.target.value)
   }
+  // Handler for deleting a person resource
   const handleDeletePerson = (targetPerson) => {
     if (window.confirm(`Delete ${targetPerson.name}?`)) {
       dbPersons
@@ -94,6 +95,7 @@ const App = () => {
       })
     }
   }
+  // Handler for adding a person to db
   const addToPhoneBook = (event) => {
     event.preventDefault()
     if (newName == "" || newNumber == "")  {

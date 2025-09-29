@@ -1,3 +1,5 @@
+### GET all to check
+
 GET http://localhost:3001/api/persons HTTP/1.1
 
 ### Successful POST
