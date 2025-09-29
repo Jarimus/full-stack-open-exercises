@@ -109,10 +109,6 @@ const App = () => {
       alert(`${newNumber} is already in use.`)
       return
     }
-    if (newNumber.match(/^[\d-\s]+$/g) === null) {
-      alert(`${newNumber} is not a valid number.`)
-      return
-    }
     const targetPerson = persons.find(person => person.name.toLowerCase() == newName.toLowerCase())
     if (targetPerson) {
         if (window.confirm(`${newName} is already in the phonebook. Update the phone number?`)) {
@@ -124,6 +120,8 @@ const App = () => {
               setTimeout(() => {
                 setNotification(null)
               }, 10000)
+              setNewName("")
+              setNewNumber("")
             })
             .catch((error) => {
               console.error(error.response.data.error)
@@ -132,8 +130,6 @@ const App = () => {
                 setErrorMessage(null)
               }, 10000);
             })
-          setNewName("")
-          setNewNumber("")
         }
         return
     }
