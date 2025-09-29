@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL
-console.log("frontend uses baseurl:", baseUrl)
 
 const getAll = () => {
   const promise = axios.get(baseUrl)
