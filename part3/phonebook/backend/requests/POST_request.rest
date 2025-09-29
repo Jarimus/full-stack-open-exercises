@@ -9,7 +9,7 @@ content-type: application/json
 
 {
   "name": "test note 1",
-  "number": "123-456",
+  "number": "123-456789",
   "random": "extra stuff not supposed to go into database"
 }
 
@@ -20,7 +20,7 @@ content-type: application/json
 
 {
   "name": "test note 2",
-  "number": "456-789",
+  "number": "456-7890123",
   "random": "more extra stuff"
 }
 
@@ -42,4 +42,44 @@ content-type: application/json
 {
   "name": "test note 4",
   "random": "more extra stuff"
+}
+
+### Name too short
+
+POST http://localhost:3001/api/persons HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "ez",
+  "number": "42"
+}
+
+### Invalid number 1
+
+POST http://localhost:3001/api/persons HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "failed test 1",
+  "number": "1-34567890"
+}
+
+### Invalid number 2
+
+POST http://localhost:3001/api/persons HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "failed test 2",
+  "number": "1234-56789"
+}
+
+### Invalid number 3
+
+POST http://localhost:3001/api/persons HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "failed test 3",
+  "number": "12-4567"
 }

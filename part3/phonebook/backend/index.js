@@ -40,29 +40,27 @@ app.get("/api/persons/:id", (req, res, next) => {
       if (person) {
         res.json(person)
       } else {
-        res.status(400)
-        res.send({error: "resource does not exist"})
+        res.status(404).send({error: "resource does not exist"})
       }
     })
-    .catch(error => {
-      next(error)
-    })
+    .catch(error => next(error))
 })
 
 // DELETE: /api/persons/id
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
   const id = req.params.id
   Person.findByIdAndDelete(id).then(person => {
-    if (!person) {
-      res.status(404).send({error: "resource does not exist"})
+    if (person) {
+      res.status(200).json(person).end()
     } else {
-      res.json(person)
+      res.status(404).end()
     }
   })
+  .catch(error => next(error))
 })
 
 // POST: /api/persons 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const body = req.body
 
   if (!body.name || !body.number) {
@@ -75,8 +73,10 @@ app.post("/api/persons", (req, res) => {
   person.save().then( savedPerson => {
     res.json(savedPerson)
   })
+  .catch(error => next(error))
 })
 
+// PUT: /api/persons/{id}
 app.put("/api/persons/:id", (req, res, next) => {
   const { name, number } = req.body
 
@@ -84,7 +84,7 @@ app.put("/api/persons/:id", (req, res, next) => {
     .findById(req.params.id)
     .then(person => {
       if (!person) {
-        res.status(400).send({ error: "resource does not exist" }).end()
+        res.status(404).send({ error: "resource does not exist" }).end()
         return
       }
       [person.name, person.number] = [name, number]
@@ -92,13 +92,9 @@ app.put("/api/persons/:id", (req, res, next) => {
         .then( savedPerson => {
           res.json(savedPerson)
         })
-        .catch(error => {
-          next(error)
-        })
+        .catch(error => next(error))
     })
-    .catch(error => {
-      next(error)
-    })
+    .catch(error => next(error))
 })
 
 // Handling unknown endpoints
@@ -108,13 +104,13 @@ const unknownEnpoint = (req, res) => {
 app.use(unknownEnpoint)
 
 // Error handling
-const errorHandler = (error, req, res, next) => {
-  console.error("Error:", error.message)
-
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
   if (error.name === 'CastError') {
-    return res.status(400).send({ error: "malformatted id" })
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
-
   next(error)
 }
 app.use(errorHandler)

@@ -85,14 +85,17 @@ const App = () => {
     if (window.confirm(`Delete ${targetPerson.name}?`)) {
       dbPersons
       .deletePerson(targetPerson.id)
-      .then( deletedPerson => setPersons(persons.filter(person => person.id != deletedPerson.id)))
-      .catch(() => {
-        setErrorMessage(`Information of ${targetPerson.name} has already been removed from the server.`)
+      .then( deletedPerson => {
+        setNotification(`${deletedPerson.name} deleted.`)
+      })
+      .catch((error) => {
+        console.error("Resource no longer exists in database.")
+        setErrorMessage("Person already removed from database.")
         setTimeout(() => {
           setErrorMessage(null)
-        }, 3000);
-        setPersons(persons.filter(person => person.id != targetPerson.id))
+        }, 10000)
       })
+      setPersons(persons.filter(person => person.id != targetPerson.id))
     }
   }
   // Handler for adding a person to db
@@ -120,14 +123,14 @@ const App = () => {
               setNotification(`Number for ${updatedEntry.name} updated.`)
               setTimeout(() => {
                 setNotification(null)
-              }, 3000)
+              }, 10000)
             })
-            .catch(() => {
-              setErrorMessage(`Information of ${targetPerson.name} has already been removed from the server.`)
+            .catch((error) => {
+              console.error(error.response.data.error)
+              setErrorMessage(error.response.data.error)
               setTimeout(() => {
                 setErrorMessage(null)
-              }, 3000);
-              setPersons(persons.filter(person => person.id != targetPerson.id))
+              }, 10000);
             })
           setNewName("")
           setNewNumber("")
@@ -136,13 +139,22 @@ const App = () => {
     }
     const newPerson = { name: newName, number: newNumber }
     dbPersons.create(newPerson)
-      .then(newEntry => setPersons(persons.concat(newEntry)))
-    setNotification(`Added ${newPerson.name}`)
-    setTimeout(() => {
-      setNotification(null)
-    }, 3000)
-    setNewName("")
-    setNewNumber("")
+      .then(newEntry => {
+        setPersons(persons.concat(newEntry))
+        setNotification(`Added ${newPerson.name}`)
+        setTimeout(() => {
+          setNotification(null)
+        }, 10000)
+      setNewName("")
+      setNewNumber("")
+      })
+      .catch((error) => {
+        console.error(error.response.data.error)
+        setErrorMessage(error.response.data.error)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 10000);
+      })
   }
 
   return (
