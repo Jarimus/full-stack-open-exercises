@@ -1,0 +1,37 @@
+### GET ALL
+GET http://localhost:3003/api/blogs
+
+### POST 1
+# @name create1
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Title 1",
+  "author": "Author 1",
+  "url": "http://example.com/blog1",
+  "likes": 0
+}
+
+### GET 1
+GET http://localhost:3003/api/blogs/{{create1.response.body.id}}
+
+### DELETE 1
+DELETE http://localhost:3003/api/blogs/{{create1.response.body.id}}
+
+### POST 2 (it is okay to leave out the number of likes)
+# @name create2
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Title 2",
+  "author": "Author 2",
+  "url": "http://example.com/blog2"
+}
+
+### GET 2
+GET http://localhost:3003/api/blogs/{{create2.response.body.id}}
+
+### DELETE 2
+DELETE http://localhost:3003/api/blogs/{{create2.response.body.id}}

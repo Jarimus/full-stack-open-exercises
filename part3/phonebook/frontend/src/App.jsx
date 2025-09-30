@@ -2,59 +2,9 @@ import { useEffect, useState } from 'react'
 import dbPersons from './services/persons'
 import Notification from './components/Notification'
 import ErrorNotification from './components/ErrorNotification'
-
-const Filter = ({filterText, handleFilterInput}) => {
-    return(
-        <div>
-            Filter shown with
-            <input
-                type="text"
-                value={filterText}
-                onChange={handleFilterInput}
-            />
-         </div>
-    )
-}
-
-const PersonForm = ({addToPhoneBook, newNumber, newName, handleNewNameInput, handleNewNumberInput}) => {
-    return (
-        <form onSubmit={addToPhoneBook}>
-        <div>
-            name: <input type="text" value={newName} onChange={handleNewNameInput} />
-        </div>
-        <div>
-            number: <input type="tel" value={newNumber} onChange={handleNewNumberInput} />
-        </div>
-        <div>
-            <button type="submit">add</button>
-        </div>
-        </form>
-    )
-}
-
-const NumberList = ({persons, filterText, handleDeletePerson}) => {
-  if (persons) {
-    return (
-        <>
-            {persons.map(person => {
-                const re = new RegExp(filterText, "i")
-                if (re.test(person.name)) {
-                    return <Person key={person.name} person={person} handleDeletePerson={() => handleDeletePerson(person)} />
-                }
-            })}
-        </>
-    )
-  }
-  return null
-}
-
-const Person = ({person, handleDeletePerson}) => {
-    return (
-        <>
-            {person.name} {person.number} <button onClick={handleDeletePerson}>delete</button> <br />
-        </>
-    )
-}
+import Filter from './components/Filter'
+import NumberList from './components/NumberList'
+import PersonForm from './components/PersonForm'
 
 const App = () => {
 
@@ -93,7 +43,7 @@ const App = () => {
         setErrorMessage("Person already removed from database.")
         setTimeout(() => {
           setErrorMessage(null)
-        }, 10000)
+        }, 5000)
       })
       setPersons(persons.filter(person => person.id != targetPerson.id))
     }
@@ -119,7 +69,7 @@ const App = () => {
               setNotification(`Number for ${updatedEntry.name} updated.`)
               setTimeout(() => {
                 setNotification(null)
-              }, 10000)
+              }, 5000)
               setNewName("")
               setNewNumber("")
             })
@@ -128,7 +78,7 @@ const App = () => {
               setErrorMessage(error.response.data.error)
               setTimeout(() => {
                 setErrorMessage(null)
-              }, 10000);
+              }, 5000);
             })
         }
         return
@@ -140,7 +90,7 @@ const App = () => {
         setNotification(`Added ${newPerson.name}`)
         setTimeout(() => {
           setNotification(null)
-        }, 10000)
+        }, 5000)
       setNewName("")
       setNewNumber("")
       })
@@ -149,7 +99,7 @@ const App = () => {
         setErrorMessage(error.response.data.error)
         setTimeout(() => {
           setErrorMessage(null)
-        }, 10000);
+        }, 5000);
       })
   }
 
