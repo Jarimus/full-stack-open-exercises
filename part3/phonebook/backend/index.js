@@ -12,27 +12,27 @@ app.use(express.static('dist'))
 app.use(express.json())
 
 // morgan logging
-morgan.token("data", (req, res) => JSON.stringify(req.body))
+morgan.token('data', (req) => JSON.stringify(req.body))
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :data')
 )
 
 // GET: /api/persons
-app.get("/api/persons", (req, res) => {
+app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
     res.json(persons)
   })
 })
 
 // GET: /info
-app.get("/info", (req, res) => {
+app.get('/info', (req, res) => {
   Person.find({}).then( persons => {
     res.send(`<p>Phonebook has info for ${persons.length} people</p> ${new Date()}`)
   })
 })
 
 // GET: /api/persons/id
-app.get("/api/persons/:id", (req, res, next) => {
+app.get('/api/persons/:id', (req, res, next) => {
   const id = req.params.id
   Person
     .findById(id)
@@ -40,14 +40,14 @@ app.get("/api/persons/:id", (req, res, next) => {
       if (person) {
         res.json(person)
       } else {
-        res.status(404).send({error: "resource does not exist"})
+        res.status(404).send({ error: 'resource does not exist' })
       }
     })
     .catch(error => next(error))
 })
 
 // DELETE: /api/persons/id
-app.delete("/api/persons/:id", (req, res, next) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   const id = req.params.id
   Person.findByIdAndDelete(id).then(person => {
     if (person) {
@@ -56,15 +56,15 @@ app.delete("/api/persons/:id", (req, res, next) => {
       res.status(404).end()
     }
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
-// POST: /api/persons 
-app.post("/api/persons", (req, res, next) => {
+// POST: /api/persons
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
   if (!body.name || !body.number) {
-    return res.status(400).json({ error: "content missing" })
+    return res.status(400).json({ error: 'content missing' })
   }
   const person = new Person({
     name: body.name,
@@ -73,18 +73,18 @@ app.post("/api/persons", (req, res, next) => {
   person.save().then( savedPerson => {
     res.json(savedPerson)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 // PUT: /api/persons/{id}
-app.put("/api/persons/:id", (req, res, next) => {
+app.put('/api/persons/:id', (req, res, next) => {
   const { name, number } = req.body
 
   Person
     .findById(req.params.id)
     .then(person => {
       if (!person) {
-        res.status(404).send({ error: "resource does not exist" }).end()
+        res.status(404).send({ error: 'resource does not exist' }).end()
         return
       }
       [person.name, person.number] = [name, number]
@@ -99,7 +99,7 @@ app.put("/api/persons/:id", (req, res, next) => {
 
 // Handling unknown endpoints
 const unknownEnpoint = (req, res) => {
-  res.status(404).send({ error: "unknown endpoint" })
+  res.status(404).send({ error: 'unknown endpoint' })
 }
 app.use(unknownEnpoint)
 

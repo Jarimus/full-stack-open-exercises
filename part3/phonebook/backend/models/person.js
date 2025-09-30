@@ -5,7 +5,7 @@ console.log('connecting to', url)
 
 mongoose.set('strictQuery',false)
 mongoose.connect(url)
-  .then(result => {
+  .then(() => {
     console.log('connected to MongoDB')
   })
   .catch(error => {
@@ -13,11 +13,11 @@ mongoose.connect(url)
   })
 
 function validatorNumber(val) {
-  const re = /^\d{2,3}\-\d+$/g
+  const re = /^\d{2,3}-\d+$/g
   return re.test(val) && val.length >= 8
 }
 
-const customNumberValidation = [validatorNumber, `length should be at least 8, format: nn(n)-nnn...`]
+const customNumberValidation = [validatorNumber, 'length should be at least 8, format: nn(n)-nnn...']
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
