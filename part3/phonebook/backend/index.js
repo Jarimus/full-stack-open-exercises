@@ -49,13 +49,8 @@ app.get('/api/persons/:id', (req, res, next) => {
 // DELETE: /api/persons/id
 app.delete('/api/persons/:id', (req, res, next) => {
   const id = req.params.id
-  Person.findByIdAndDelete(id).then(person => {
-    if (person) {
-      res.status(200).json(person).end()
-    } else {
-      res.status(404).end()
-    }
-  })
+  Person.findByIdAndDelete(id)
+    .then(person => res.status(204).json(person).end())
     .catch(error => next(error))
 })
 
