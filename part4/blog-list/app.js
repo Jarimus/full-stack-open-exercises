@@ -4,13 +4,13 @@ const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
 const blogsRouter = require('./controllers/blogs')
+const usersRouter = require('./controllers/users')
 
 const app = express()
 
 logger.info('connecting to MongoDb')
 
-mongoose
-  .connect(config.MONGODB_URI)
+mongoose.connect(config.MONGODB_URI)
   .then(() => {
     logger.info('connected to MongoDB')
   })
@@ -21,12 +21,12 @@ mongoose
 app.use(express.static('dist'))
 app.use(express.json())
 
-if (process.env.NODE_ENV !== "test") {
-  app.use(middleware.morganLogging)
-}
+
+// app.use(middleware.morganLogging)
 
 
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
