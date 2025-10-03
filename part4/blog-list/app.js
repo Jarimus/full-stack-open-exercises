@@ -7,7 +7,7 @@ const blogsRouter = require('./controllers/blogs')
 
 const app = express()
 
-logger.info('connecting to', config.MONGODB_URI)
+logger.info('connecting to MongoDb')
 
 mongoose
   .connect(config.MONGODB_URI)
@@ -20,7 +20,11 @@ mongoose
 
 app.use(express.static('dist'))
 app.use(express.json())
-app.use(middleware.requestLogger)
+
+if (process.env.NODE_ENV !== "test") {
+  app.use(middleware.morganLogging)
+}
+
 
 app.use('/api/blogs', blogsRouter)
 

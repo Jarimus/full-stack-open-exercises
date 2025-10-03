@@ -10,7 +10,7 @@ Content-Type: application/json
   "title": "Title 1",
   "author": "Author 1",
   "url": "http://example.com/blog1",
-  "likes": 0
+  "likes": 12
 }
 
 ### GET 1
