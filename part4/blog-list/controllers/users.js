@@ -13,6 +13,7 @@ usersRouter.get('/', async (request, response) => {
 usersRouter.post('/', async (request, response) => {
   const body = request.body
 
+  // Password needs to be 3 or longer
   if (body.password.length < 3) {
     response.status(400).send({ error: 'password too short (min 3)'}).end()
     return

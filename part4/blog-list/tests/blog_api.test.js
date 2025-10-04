@@ -5,6 +5,7 @@ const app = require('../app')
 const Blog = require('../models/blog')
 const assert = require('node:assert')
 const User = require('../models/user')
+const bcrypt = require('bcryptjs')
 
 const api = supertest(app)
 
@@ -37,6 +38,7 @@ describe('blogs: initial database with two entries', () => {
     await User.deleteMany({})
     await Blog.deleteMany({})
     const userObject = new User(initialUsers[0])
+    userObject.password = await bcrypt.hash(userObject.password, 10)
     await userObject.save()
     let blogObject = new Blog(initialBlogs[0])
     await blogObject.save()
@@ -97,6 +99,11 @@ describe('blogs: initial database with two entries', () => {
     const responseUsers = await api.get('/api/users')
     const UsersAtStart = responseUsers.body
     const userID = UsersAtStart[0].id
+
+    const user = initialUsers[0]
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: user.username, password:  user.password })  
   
     const blog = {
         title: "title 3",
@@ -106,6 +113,7 @@ describe('blogs: initial database with two entries', () => {
       }
   
     await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .send(blog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -118,6 +126,10 @@ describe('blogs: initial database with two entries', () => {
   })
   
   test('POST: likes defaults to 0', async () => {
+    const user = initialUsers[0]
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: user.username, password:  user.password })  
   
     const blog = {
       title: "title 4",
@@ -126,6 +138,7 @@ describe('blogs: initial database with two entries', () => {
     }
   
     await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .send(blog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -137,6 +150,10 @@ describe('blogs: initial database with two entries', () => {
   })
   
   test('POST: title missing --> 400', async () => {
+    const user = initialUsers[0]
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: user.username, password:  user.password })  
   
     const blog = {
       author: "author 4",
@@ -145,19 +162,26 @@ describe('blogs: initial database with two entries', () => {
     }
   
     await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .send(blog)
       .expect(400)
   })
   
   test('POST: url missing --> 400', async () => {
-  
+    const user = initialUsers[0]
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: user.username, password:  user.password })    
+
     const blog = {
       title: "title 4",
       author: "author 4",
       likes: 0
     }
   
-    await api.post('/api/blogs')
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .send(blog)
       .expect(400)
   })
