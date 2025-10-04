@@ -4,6 +4,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
 const assert = require('node:assert')
+const User = require('../models/user')
 
 const api = supertest(app)
 
@@ -22,10 +23,21 @@ const initialBlogs = [
   },
 ]
 
+const initialUsers = [
+  {
+    username: "username 1",
+    user: "user 1",
+    password: "password 1",
+  }
+]
+
 describe('blogs: initial database with two entries', () => {
 
   beforeEach(async () => {
+    await User.deleteMany({})
     await Blog.deleteMany({})
+    const userObject = new User(initialUsers[0])
+    await userObject.save()
     let blogObject = new Blog(initialBlogs[0])
     await blogObject.save()
     blogObject = new Blog(initialBlogs[1])
@@ -52,13 +64,27 @@ describe('blogs: initial database with two entries', () => {
     assert.notEqual(id, undefined)
   })
   
-  test('GET: one existing resource', async () => {
+  test('GET: one existing resource by id', async () => {
     let response = await api.get('/api/blogs')
     const initialBlogs = response.body
     const id = initialBlogs[0].id
     response = await api.get(`/api/blogs/${id}`).expect(200)
     const retrievedBlog = response.body
-    assert.deepStrictEqual(retrievedBlog, initialBlogs[0])
+    assert.deepStrictEqual(
+    {
+      id: retrievedBlog.id,
+      title: retrievedBlog.title,
+      author: retrievedBlog.author,
+      url: retrievedBlog.url,
+      likes: retrievedBlog.likes
+    },
+    {
+      id: initialBlogs[0].id,
+      title: initialBlogs[0].title,
+      author: initialBlogs[0].author,
+      url: initialBlogs[0].url,
+      likes: initialBlogs[0].likes
+    })
   })
   
   test('GET: one non-existent resource', async () => {
@@ -68,6 +94,9 @@ describe('blogs: initial database with two entries', () => {
   })
   
   test('POST method works', async () => {
+    const responseUsers = await api.get('/api/users')
+    const UsersAtStart = responseUsers.body
+    const userID = UsersAtStart[0].id
   
     const blog = {
         title: "title 3",
@@ -81,11 +110,11 @@ describe('blogs: initial database with two entries', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
   
-    const response = await api.get('/api/blogs')
-    const blogs = response.body
+    const responseBlogs = await api.get('/api/blogs')
+    const blogs = responseBlogs.body
   
     assert.deepStrictEqual(blogs.length, initialBlogs.length + 1)
-    assert.deepStrictEqual({...blog, id: "irrelevant"}, {...blogs[2], id: "irrelevant"})
+    assert.deepStrictEqual({...blog, id: "irrelevant", user: userID}, {...blogs[2], id: "irrelevant", user: userID})
   })
   
   test('POST: likes defaults to 0', async () => {

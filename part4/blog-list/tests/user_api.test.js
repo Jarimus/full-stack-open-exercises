@@ -4,25 +4,48 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const User = require('../models/user')
+const Blog = require('../models/blog')
 const assert = require('node:assert')
 
 const api = supertest(app)
 
+const initialBlogs = [
+  {
+    title: "title 1",
+    author: "author 2",
+    url: "url 1",
+    likes: 123,
+  },
+  {
+    title: "title 2",
+    author: "author 2",
+    url: "url 2",
+    likes: 456,
+  },
+]
+
+const initialUsers = [
+  {
+    username: "username 1",
+    user: "user 1",
+    password: "password 1",
+  }
+]
+
 describe('users: one initial user in the database', () => {
   beforeEach(async () => {
     await User.deleteMany({})
-
-    const hashedPassword = await bcrypt.hash('password123', 10)
-    const newUser = new User({
-      username: "junior programmer",
-      name: "Jack Slowfingers",
-      password: hashedPassword
-    })
-    await newUser.save()
+    await Blog.deleteMany({})
+    const userObject = new User(initialUsers[0])
+    await userObject.save()
+    let blogObject = new Blog(initialBlogs[0])
+    await blogObject.save()
+    blogObject = new Blog(initialBlogs[1])
+    await blogObject.save()
   })
 
   test('POST: new valid user', async () => {
-    const initialUsers = (await api.get('/api/users')).body
+    const UsersAtStart = (await api.get('/api/users')).body
 
     const newUser = {
       username: "senior programmer",
@@ -36,15 +59,19 @@ describe('users: one initial user in the database', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const finalUsers = (await api.get('/api/users')).body
-    assert.strictEqual(finalUsers.length, initialUsers.length + 1)
+    const UsersAtEnd = (await api.get('/api/users')).body
+    assert.strictEqual(UsersAtEnd.length, UsersAtStart.length + 1)
 
-    const usernames = finalUsers.map(user => user.username)
+    const usernames = UsersAtEnd.map(user => user.username)
     assert(usernames.includes(newUser.username))
   })
 })
 
 describe('users: empty database', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+    await Blog.deleteMany({})
+  })
   test('POST: username too short', async () => {
     const initialUsers = (await api.get('/api/users')).body
   

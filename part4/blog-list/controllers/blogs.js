@@ -1,15 +1,16 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 // GET ALL (async/await)
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', { name: 1, username: 1} )
   response.json(blogs)
 })
 
 // GET ONE
 blogsRouter.get('/:id', async (request, response) => {
-  const blog = await Blog.findById(request.params.id)
+  const blog = await Blog.findById(request.params.id).populate('user', { name: 1, username: 1} )
   if (blog) {
     response.json(blog)
   } else {
@@ -21,15 +22,25 @@ blogsRouter.get('/:id', async (request, response) => {
 // POST (async/await)
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
+  const user = (await User.find({}))[0]
+
+  if (!user) {
+    return response.status(400).json({ error: 'user missing' })
+  }
 
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes,
+    user: user.id
   })
 
   const savedBlog = await blog.save()
+
+  user.blogs = user.blogs.concat(blog.id)
+  await user.save()
+
   response.status(201).json(savedBlog)
 })
 

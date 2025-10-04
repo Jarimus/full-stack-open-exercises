@@ -5,8 +5,8 @@ const bcrypt = require('bcryptjs')
 
 // GET: all
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
-  response.json(users)
+  const users = await User.find({}).populate('blogs', { user: 0 } )
+  response.json(users).end()
 })
 
 // POST
