@@ -1,6 +1,9 @@
 const logger = require('./logger')
 const morgan = require('morgan')
+const { getTokenFrom } = require('./jwt')
+const jwt = require('jsonwebtoken')
 
+// Error handling
 const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
@@ -18,11 +21,34 @@ const errorHandler = (error, request, response, next) => {
  next(error)
 }
 
+// Morgan logging
 morgan.token('data', (req) => JSON.stringify(req.body))
 const morganLogging = morgan(':method :url :status :res[content-length] - :response-time ms :data')
 
+// Unknown endpoint
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
-module.exports = { errorHandler, unknownEndpoint, morganLogging }
+// Token extractor
+const tokenExtractor = (request, response, next) => {
+  request.token = getTokenFrom(request)
+  next()
+}
+
+// User extractor
+const userExtractor = (request, response, next) => {
+  if (request.token) {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    request.user = {
+      username: decodedToken.username,
+      id: decodedToken.id
+    }
+  } else {
+    response.status(401).send({ error: "token invalid" }).end()
+    return
+  }
+  next()
+}
+
+module.exports = { errorHandler, unknownEndpoint, morganLogging, tokenExtractor, userExtractor }

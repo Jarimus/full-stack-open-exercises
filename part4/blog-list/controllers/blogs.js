@@ -1,8 +1,8 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
-const { getTokenFrom } = require('../utils/jwt')
 const jwt = require('jsonwebtoken')
+const middleware = require('../utils/middleware')
 
 
 // GET ALL (async/await)
@@ -23,15 +23,9 @@ blogsRouter.get('/:id', async (request, response) => {
 
 
 // POST (async/await)
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const body = request.body
-
-  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-
-  const user = await User.findById(decodedToken.id)
+  const user = await User.findById(request.user.id)
 
   if (!user) {
     return response.status(400).json({ error: 'userID missing or not valid' })
@@ -53,15 +47,34 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 // DELETE (async/await)
-blogsRouter.delete('/:id', async (request, response) => {
-  const id = request.params.id
-  await Blog.findByIdAndDelete(id)
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
+  // Check whether the blog exists
+  const blogID = request.params.id
+  const blog = await Blog.findById(blogID)
+  if (!blog) {
+    return response.status(204).end()
+  }
+
+  //validate jwt (middleware extracted data to request.user )
+  const userIDtoken = request.user.id
+  if (!userIDtoken) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+
+  
+  // compare userID in the blog and the token.
+  const userIDblog = blog.user._id.toString()
+  if (userIDtoken != userIDblog) {
+    response.status(401).send({ error: "only owner can delete blogs"})
+  }
+
+  await Blog.findByIdAndDelete(blogID)
   response.status(204).end()
 })
 
 // PUT (async/await)
 blogsRouter.put('/:id', async (request, response) => {
-  const { title, author, url, likes } = request.body
+  const { likes } = request.body
   const id = request.params.id
   const blog = await Blog.findById(id)
 
@@ -69,7 +82,7 @@ blogsRouter.put('/:id', async (request, response) => {
     return response.status(404).end()
   }
 
-  [blog.title, blog.author, blog.url, blog.likes] = [title, author, url, likes]
+  blog.likes = likes
 
   const updatedBlog = await blog.save()
   response.json(updatedBlog).end()

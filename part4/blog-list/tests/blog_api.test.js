@@ -96,23 +96,25 @@ describe('blogs: initial database with two entries', () => {
   })
   
   test('POST method works', async () => {
+    // Get user id from database
     const responseUsers = await api.get('/api/users')
     const UsersAtStart = responseUsers.body
     const userID = UsersAtStart[0].id
-
+    // Get all user information from initial users
     const user = initialUsers[0]
+    // login
     const loginResponse = await api
       .post('/api/login')
       .send({ username: user.username, password:  user.password })  
   
+    // POST blog
     const blog = {
         title: "title 3",
         author: "author 3",
         url: "url 3",
         likes: 789,
       }
-  
-    await api.post('/api/blogs')
+    const savedBlogResponse = await api.post('/api/blogs')
       .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .send(blog)
       .expect(201)
@@ -122,7 +124,7 @@ describe('blogs: initial database with two entries', () => {
     const blogs = responseBlogs.body
   
     assert.deepStrictEqual(blogs.length, initialBlogs.length + 1)
-    assert.deepStrictEqual({...blog, id: "irrelevant", user: userID}, {...blogs[2], id: "irrelevant", user: userID})
+    assert.deepStrictEqual({...blog, id: "irrelevant", user: userID}, {...savedBlogResponse.body, id: "irrelevant"})
   })
   
   test('POST: likes defaults to 0', async () => {
@@ -186,42 +188,77 @@ describe('blogs: initial database with two entries', () => {
       .expect(400)
   })
   
-  test('DELETE: existing blog', async () => {
-    const response = await api.get('/api/blogs')
-    const id = response.body[0].id
-  
-    await api.delete(`/api/blogs/${id}`)
+  test.only('DELETE: create and delete a blog', async () => {
+    // login
+    const user = initialUsers[0]
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: user.username, password:  user.password })
+
+    // Create blog to test deletion on
+    const blog = {
+      title: "Blog to be deleted",
+      author: "random author",
+      url: "random url",
+      likes: 999,
+    }
+    const newBlogResponse = await api
+        .post('/api/blogs')
+        .set('Authorization', `Bearer ${loginResponse.body.token}`)
+        .send(blog)        
+
+    const newBlog = newBlogResponse.body
+    
+    await api
+      .delete(`/api/blogs/${newBlog.id}`)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .expect(204)
   })
   
-  test('DELETE: non-existent blog, correct id format', async () => {
+  test.only('DELETE: non-existent blog, correct id format', async () => {
+    // login
+    const user = initialUsers[0]
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: user.username, password:  user.password })
+
     await api.delete('/api/blogs/79abc1faba78f707986fe51f')
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .expect(204)
   })
   
-  test('DELETE: non-existent blog, malformatted id', async () => {
+  test.only('DELETE: non-existent blog, malformatted id', async () => {
+    // login
+    const user = initialUsers[0]
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: user.username, password:  user.password })
+
     await api.delete('/api/blogs/123')
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .expect(400)
   })
   
   test('PUT: existing resource', async () => {
     let response = await api.get('/api/blogs')
-    const id = response.body[0].id
+    const oldBlog = response.body[0]
+    const id = oldBlog.id
     const updatedBlog = {
-      title: "new title",
-      author: "new author",
-      url: "new url",
-      likes: 9000
+      title: oldBlog.title,
+      author: oldBlog.author,
+      url: oldBlog.url,
+      likes: 9000,
+      id: id
     }
     await api
       .put(`/api/blogs/${id}`)
-      .send(updatedBlog)
+      .send({ likes: updatedBlog.likes })
       .expect(200)
     
     response = await api.get('/api/blogs')
     const newBlogs = response.body
     
-    assert.deepStrictEqual({...updatedBlog, id: id}, newBlogs.find(blog => blog.id === id))
+    assert.deepStrictEqual({updatedBlog}, newBlogs.find(blog => blog.id === id))
   })
   
   test('PUT: non-existent resource', async () => {

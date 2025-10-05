@@ -39,6 +39,7 @@ GET http://localhost:3003/api/blogs/{{create1.response.body.id}}
 
 ### DELETE 1
 DELETE http://localhost:3003/api/blogs/{{create1.response.body.id}}
+Authorization: Bearer {{login1.response.body.token}}
 
 ### POST 2
 # @name create2
@@ -57,3 +58,4 @@ GET http://localhost:3003/api/blogs/{{create2.response.body.id}}
 
 ### DELETE 2
 DELETE http://localhost:3003/api/blogs/{{create2.response.body.id}}
+Authorization: Bearer {{login2.response.body.token}}
