@@ -1,0 +1,49 @@
+### Request non-existent resource (expecting 404)
+GET http://localhost:3003/api/blogs/67ab26b9628d1da4957ce925
+
+### Deleting non-existent resource (expecting 204)
+DELETE http://localhost:3003/api/blogs/67ab26b9628d1da4957ce925
+
+### Updating a non-existent resource (expecting 404)
+PUT http://localhost:3003/api/blogs/67ab26b9628d1da4957ce925
+Content-Type: application/json
+
+{
+  "title": "title",
+  "author": "author",
+  "url": "http://example.com/blog",
+  "likes": 0
+}
+
+### Next ones: POST with missing data
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "author": "author",
+  "url": "http://example.com/blog",
+  "likes": 0
+}
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "title",
+  "url": "http://example.com/blog",
+  "likes": 0
+}
+
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "title",
+  "author": "author",
+  "likes": 0
+}
