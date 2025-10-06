@@ -7,8 +7,8 @@ POST http://localhost:3003/api/login
 Content-Type: application/json
 
 {
-  "username": "test username 1",
-  "password": "password1"
+  "username": "jari",
+  "password": "salasana"
 }
 
 ### LOGIN 2
@@ -17,8 +17,8 @@ POST http://localhost:3003/api/login
 Content-Type: application/json
 
 {
-  "username": "test username 2",
-  "password": "password2"
+  "username": "sanna",
+  "password": "kristiina"
 }
 
 ### POST 1
@@ -28,9 +28,9 @@ Content-Type: application/json
 Authorization: Bearer {{login1.response.body.token}}
 
 {
-  "title": "Title 1",
-  "author": "Author 1",
-  "url": "http://example.com/blog1",
+  "title": "Maailmanmatkaaja",
+  "author": "Jari Ahonen",
+  "url": "http://maailmanmatkaaja.com/esittely",
   "likes": 12
 }
 
@@ -48,9 +48,9 @@ Content-Type: application/json
 Authorization: Bearer {{login2.response.body.token}}
 
 {
-  "title": "Title 2",
-  "author": "Author 2",
-  "url": "http://example.com/blog2"
+  "title": "Syvä kauneus",
+  "author": "Sanna Ahonen",
+  "url": "http://syvavesi.fi/alussa"
 }
 
 ### GET 2

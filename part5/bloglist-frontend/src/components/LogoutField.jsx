@@ -1,10 +1,16 @@
-const LogoutField = ({ user, setUser }) => {
+const LogoutField = ({ user, setUser, notify }) => {
+  const logout = () => {
+    setUser(null)
+    window.localStorage.removeItem('bloglistAppUser')
+    notify('Logged out', 'green', 2)     
+  }
+
   return (
     <>
       <div>
         Logged in as {user.name}
       </div>
-      <button onClick={() => {setUser(null)}}>Logout</button>
+      <button onClick={logout}>Logout</button>
     </>
   )
 }

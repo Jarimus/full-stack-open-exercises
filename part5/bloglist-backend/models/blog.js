@@ -5,7 +5,10 @@ const blogSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  author: String,
+  author: {
+    type: String,
+    default: 'Unknown'
+  },
   url: {
     type: String,
     required: true

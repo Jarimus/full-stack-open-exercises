@@ -1,21 +1,21 @@
 import loginServices from '../services/login'
 
-const LoginForm = ({ setUser }) => {
+const LoginForm = ({ setUser, notify }) => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
     const username = event.target.username.value
     const password = event.target.password.value
-    console.log(`${username}: ${password}`)
     try {
       const user = await loginServices.login({ username, password })
       setUser(user)
-      console.log(user)
+      window.localStorage.setItem('bloglistAppUser', JSON.stringify(user))
       event.target.username.value = ''
       event.target.password.value = ''
+      notify('Login successful!', 'green', 2)
     } catch(error) {
-      console.error(`wrong credentials or error: ${error}`)
       event.target.password.value = ''
+      notify('Username or password wrong', 'red', 2)
     }
   }
 
