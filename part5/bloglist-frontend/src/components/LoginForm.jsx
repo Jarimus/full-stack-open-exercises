@@ -1,20 +1,22 @@
+import { useState } from 'react'
 import loginServices from '../services/login'
 
 const LoginForm = ({ setUser, notify }) => {
 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
   const handleLogin = async (event) => {
     event.preventDefault()
-    const username = event.target.username.value
-    const password = event.target.password.value
     try {
       const user = await loginServices.login({ username, password })
       setUser(user)
       window.localStorage.setItem('bloglistAppUser', JSON.stringify(user))
-      event.target.username.value = ''
-      event.target.password.value = ''
+      setUsername('')
+      setPassword('')
       notify('Login successful!', 'green', 2)
-    } catch(error) {
-      event.target.password.value = ''
+    } catch {
+      setPassword('')
       notify('Username or password wrong', 'red', 2)
     }
   }
@@ -26,17 +28,17 @@ const LoginForm = ({ setUser, notify }) => {
         <div>
           <label>
             username
-            <input name="username" type="text" />
+            <input type="text" value={username} onChange={({target}) => {setUsername(target.value)}} />
           </label>
         </div>
         <div>
           <label>
             password
-            <input name="password" type="password" />
+            <input type="password" value={password} onChange={({target}) => {setPassword(target.value)}} />
           </label>
         </div>
         <div>
-          <button>Login</button>
+          <button style={{ margin: "10px 0" }}>Login</button>
         </div>
       </form>
     </>

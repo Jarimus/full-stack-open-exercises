@@ -1,4 +1,4 @@
-const Notification = ({ notification, setNotification }) => {
+const Notification = ({ notification }) => {
   const notificationStyle = {
     color: notification.color,
     background: 'lightgrey',
