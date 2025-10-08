@@ -36,19 +36,19 @@ const Blog = ({ blog, notify, removeBlog, updateLikes, usernameFromToken }) => {
   return (
     <div style={blogStyle}>
       {!isExpanded &&
-        <div>{blog.title} - {blog.author} <button onClick={() => {setIsExpanded(true)}}>Show details</button></div>
+        <div>{blog.title} - {blog.author} <button name="show details" onClick={() => {setIsExpanded(true)}}>Show details</button></div>
       }
 
       {isExpanded && 
         <div>
-          <div>{blog.title} - {blog.author} <button onClick={() => {setIsExpanded(false)}}>Hide</button></div>
+          <div>{blog.title} - {blog.author} <button name="hide" onClick={() => {setIsExpanded(false)}}>Hide</button></div>
           <div>{blog.url}</div>
-          <div>{likes} <button onClick={handleLike}>Like</button></div>
+          <div>{likes} <button name="like" onClick={handleLike}>Like</button></div>
           <div>{blog.user.username}</div>
         </div>
       }
       {isExpanded && usernameFromBlog === usernameFromToken &&
-          <div><button style={{background: 'lightcoral'}} onClick={handleRemove}>Remove</button></div>
+          <div><button name="remove" style={{background: 'lightcoral'}} onClick={handleRemove}>Remove</button></div>
       }
     </div>
   )  

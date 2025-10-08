@@ -1,4 +1,4 @@
-const { test, expect, beforeEach, describe } = require('@playwright/test')
+const { test, expect, beforeEach, describe, request } = require('@playwright/test')
 const { exitCode } = require('process')
 
 describe('Blog app', () => {
@@ -51,7 +51,6 @@ describe('Blog app', () => {
       await submitButton.click()
 
       await expect(page.getByRole('button', { name: 'login' })).toBeVisible()
-
     })
   })
 
@@ -61,7 +60,6 @@ describe('Blog app', () => {
       await page.getByLabel('password').fill('salasana')
       await page.getByRole('button', { name: 'login' }).click()
     })
-
     test('a new blog can be created', async ({ page }) => {
       await page.getByRole('button', { name: 'Create new blog' }).click()
       await page.getByLabel('Title:').fill('Hard work pays off')
@@ -72,25 +70,92 @@ describe('Blog app', () => {
       await expect(page.getByText('Hard work pays off', { exact: false })).toBeVisible()
       await expect(page.getByText('Wise man', { exact: false })).toBeVisible()
       await expect(page.getByText('https://blog.wisdomsummit.com/hardwork', { exact: false })).not.toBeVisible()
-
     })
-
-    test('a blog can be liked', async ({ page }) => {
-      // Create new blog
-      await page.getByRole('button', { name: 'Create new blog' }).click()
-      await page.getByLabel('Title:').fill('Hard work pays off')
-      await page.getByLabel('Author:').fill('Wise man')
-      await page.getByLabel('url').fill('https://blog.wisdomsummit.com/hardwork')
-      await page.getByRole('button', { name: 'create blog' }).click()
-      // Expand it
-      await page.getByText('Show details').click()
-      // Click it a hundred times
-      await page.getByText('Like').click({ clickCount: 100 })
-      // Expect the blog to have 100 likes
-      await expect(page.getByText('100', { exact: false })).toBeVisible()
-      
+    describe('When blogs exists', () => {
+      beforeEach(async ({ page, request }) => {
+        // Create new blog
+        await page.getByRole('button', { name: 'Create new blog' }).click()
+        await page.getByLabel('Title:').fill('Hard work pays off')
+        await page.getByLabel('Author:').fill('Wise man')
+        await page.getByLabel('url').fill('https://blog.wisdomsummit.com/hardwork')
+        await page.getByRole('button', { name: 'Create blog' }).click()
+        // Login as a different user
+        await request.post('http://localhost:3003/api/users', {
+          data: {
+            name: "Sanna Ahonen",
+            username: "sanna",
+            password: "salainen"
+          }
+        })
+        await page.getByRole('button', { name: 'logout' }).click()
+        await page.getByLabel('username').fill('sanna')
+        await page.getByLabel('password').fill('salainen')
+        await page.getByRole('button', { name: 'login' }).click()
+        // Create another blog
+        await page.getByRole('button', { name: 'Create new blog' }).click()
+        await page.getByLabel('Title:').fill('Beauty and the yeast')
+        await page.getByLabel('Author:').fill('Food magnate')
+        await page.getByLabel('url').fill('https://blog.megafood.com/yeast')
+        await page.getByRole('button', { name: 'Create blog' }).click()
+      })
+      test('a blog can be liked', async ({ page }) => {
+        // Expand a blog
+        await page.getByRole('button', { name: 'Show details' }).click()
+        // Click it 3 times
+        await page.getByText('Like').click({ clickCount: 3 })
+        // Expect the blog to have 3 likes
+        await expect(page.getByText('3', { exact: false })).toBeVisible()
+      })
+      test('user can delete their blogs', async ({ page }) => {
+        // Expand the second blog (owned by the user)
+        await expect(page.getByText('Beauty and the yeast', { exact: false })).toBeVisible()
+        await page.getByText('Beauty and the yeast').getByRole('button', { name: 'Show details' }).click()
+        // Listen for the confirmation window
+        page.on('dialog', async (dialog) => await dialog.accept())
+        // Click the remove button
+        await page.getByRole('button', { name: 'remove' }).click()
+        // Expect the second blog to be removed
+        await expect(page.getByText('Beauty and the yeast', { exact: false })).not.toBeVisible()
+        await expect(page.getByText('Food magnate', { exact: false })).not.toBeVisible()
+      })
+      test('the remove button is hidden from non-owner users', async ({ page }) => {
+        // Expand the first blog (not owned by the user)
+        await page.getByText('Hard work pays off').getByRole('button', { name: 'Show details' }).click()
+        // Expect a remove button _not_ to be visible
+        await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
+        // Expand the second blog (owner by the user)
+        await page.getByText('Beauty and the yeast').getByRole('button', { name: 'Show details' }).click()
+        // Expect a remove button to be visible no
+        await expect(page.getByRole('button', { name: 'remove' })).toBeVisible()
+      })
+      test('Blogs are ordered by likes, descending', async ({ page }) => {
+        // Expand the second blog
+        await page.getByText('Beauty and the yeast').getByRole('button', { name: 'Show details' }).click()
+        // Give the second blog a few likes
+        await page.getByText('Like').click({ clickCount: 3 })
+        // Refresh the page
+        await page.reload()
+        // Wait for the refresh to complete
+        await expect(page.getByText('Hard work')).toBeVisible()
+        // Expand the first blog, expect to see url for 'Beauty and the yeast'.
+        let buttonLocators = await page.getByText('Show details').all()
+        await buttonLocators[0].click()
+        expect(page.getByText(/https:\/\/blog.megafood.com\/yeast/)).toBeVisible()
+        // Expand the second blog, add 5 likes to it
+        await page.getByRole('button', { name: 'Show details' }).click()
+        await expect(page.getByText(/jari/)).toBeVisible()
+        const likeButtons = await page.getByRole('button', { name: 'like' }).all()
+        likeButtons[1].click({ clickCount: 5 })
+        await expect(page.getByText(/5/)).toBeVisible()
+        // Refresh the page again
+        await page.reload()
+        // Wait for the refresh to complete
+        await expect(page.getByText('Beauty')).toBeVisible()
+        // Expand the first blog, expect to see url for 'Hard work pays off'
+        buttonLocators = await page.getByText('Show details').all()
+        await buttonLocators[0].click()
+        expect(page.getByText(/https:\/\/blog.wisdomsummit.com\/hardwork/)).toBeVisible()
+      })
     })
-
   })
-
 })
