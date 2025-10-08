@@ -1,10 +1,6 @@
 import { useState } from "react"
-import blogService from '../services/blogs'
 
-const Blog = ({ blog, notify, removeBlog }) => {
-
-  const usernameFromBlog = blog.user.username
-  const usernameFromToken = JSON.parse(window.localStorage.getItem('bloglistAppUser')).username
+const Blog = ({ blog, notify, removeBlog, updateLikes, usernameFromToken }) => {
 
   const [likes, setLikes] = useState(blog.likes)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -15,11 +11,8 @@ const Blog = ({ blog, notify, removeBlog }) => {
       ...blog,
       likes: newLikes
     }
-    try {
-      blogService.update(blog.id, newData)
-      setLikes(newLikes)
-    } catch(error) { notify(`Error updating like: ${error}`, 'red', 2) }
-
+    setLikes(newLikes)
+    updateLikes(blog, newData)
   }
 
   const handleRemove = async () => {
@@ -38,7 +31,7 @@ const Blog = ({ blog, notify, removeBlog }) => {
     marginBottom: 5
   }
 
-
+  const usernameFromBlog = blog.user.username
 
   return (
     <div style={blogStyle}>
@@ -48,7 +41,7 @@ const Blog = ({ blog, notify, removeBlog }) => {
 
       {isExpanded && 
         <div>
-          <div>{blog.title} <button onClick={() => {setIsExpanded(false)}}>Hide</button></div>
+          <div>{blog.title} - {blog.author} <button onClick={() => {setIsExpanded(false)}}>Hide</button></div>
           <div>{blog.url}</div>
           <div>{likes} <button onClick={handleLike}>Like</button></div>
           <div>{blog.user.username}</div>

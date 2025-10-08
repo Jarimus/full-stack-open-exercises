@@ -9,7 +9,7 @@ const CreateBlogForm = ({ createBlog, notify }) => {
   const handleSubmit = async (event) => {
     event.preventDefault()
     const newBlog = { title, url }
-    newBlog.author = author === '' ? undefined : author // to activate a backend default value
+    newBlog.author = author === '' ? undefined : author // to activate a backend default value using 'undefined'
     try {
       await createBlog(newBlog)
       notify('Blog created!', 'green', 2)
