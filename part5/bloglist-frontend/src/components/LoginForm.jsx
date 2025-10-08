@@ -38,7 +38,7 @@ const LoginForm = ({ setUser, notify }) => {
           </label>
         </div>
         <div>
-          <button style={{ margin: "10px 0" }}>Login</button>
+          <button name='login' style={{ margin: "10px 0" }}>Login</button>
         </div>
       </form>
     </>

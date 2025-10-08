@@ -12,10 +12,10 @@ const CollapseExpand = ({ expandLabel, collapseLabel, children }) => {
         <div>
           {children}
         </div>
-        <button style={{ margin: "10px 0" }} onClick={() => {setExpanded(false)}}>{collapseLabel}</button>
+        <button name={collapseLabel} style={{ margin: "10px 0" }} onClick={() => {setExpanded(false)}}>{collapseLabel}</button>
       </div>
       <div style={collapsedView}>
-        <button style={{ margin: "10px 0" }} onClick={() => {setExpanded(true)}}>{expandLabel}</button>
+        <button name={expandLabel} style={{ margin: "10px 0" }} onClick={() => {setExpanded(true)}}>{expandLabel}</button>
       </div>
     </div>
     

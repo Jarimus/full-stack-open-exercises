@@ -10,7 +10,7 @@ const LogoutField = ({ user, setUser, notify }) => {
       <div>
         Logged in as {user.name}
       </div>
-      <button style={{ margin: "10px 0"}} onClick={logout}>Logout</button>
+      <button name="logout" style={{ margin: "10px 0"}} onClick={logout}>Logout</button>
     </>
   )
 }

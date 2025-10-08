@@ -188,7 +188,7 @@ describe('blogs: initial database with two entries', () => {
       .expect(400)
   })
   
-  test.only('DELETE: create and delete a blog', async () => {
+  test('DELETE: create and delete a blog', async () => {
     // login
     const user = initialUsers[0]
     const loginResponse = await api
@@ -215,7 +215,7 @@ describe('blogs: initial database with two entries', () => {
       .expect(204)
   })
   
-  test.only('DELETE: non-existent blog, correct id format', async () => {
+  test('DELETE: non-existent blog, correct id format', async () => {
     // login
     const user = initialUsers[0]
     const loginResponse = await api
@@ -227,7 +227,7 @@ describe('blogs: initial database with two entries', () => {
       .expect(204)
   })
   
-  test.only('DELETE: non-existent blog, malformatted id', async () => {
+  test('DELETE: non-existent blog, malformatted id', async () => {
     // login
     const user = initialUsers[0]
     const loginResponse = await api
@@ -239,26 +239,29 @@ describe('blogs: initial database with two entries', () => {
       .expect(400)
   })
   
-  test('PUT: existing resource', async () => {
+  test.only('PUT: existing resource', async () => {
     let response = await api.get('/api/blogs')
     const oldBlog = response.body[0]
     const id = oldBlog.id
     const updatedBlog = {
-      title: oldBlog.title,
-      author: oldBlog.author,
-      url: oldBlog.url,
+      title: "new title",
+      author: "new author",
+      url: "new url",
       likes: 9000,
-      id: id
     }
     await api
       .put(`/api/blogs/${id}`)
-      .send({ likes: updatedBlog.likes })
+      .send(updatedBlog)
       .expect(200)
     
     response = await api.get('/api/blogs')
     const newBlogs = response.body
+    const dbUpdatedBlog = newBlogs.find(blog => blog.id === id)
+
+    console.log(updatedBlog)
+    console.log(dbUpdatedBlog)
     
-    assert.deepStrictEqual({updatedBlog}, newBlogs.find(blog => blog.id === id))
+    assert.deepStrictEqual({...updatedBlog, id}, (newBlogs.find(blog => blog.id === id)))
   })
   
   test('PUT: non-existent resource', async () => {
