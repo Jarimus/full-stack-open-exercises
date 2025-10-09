@@ -8,7 +8,9 @@ const Blog = ({ blog, notify, removeBlog, updateLikes, usernameFromToken }) => {
   const handleLike = async () => {
     const newLikes = likes + 1
     const newData = {
-      ...blog,
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
       likes: newLikes
     }
     setLikes(newLikes)
@@ -44,7 +46,7 @@ const Blog = ({ blog, notify, removeBlog, updateLikes, usernameFromToken }) => {
           <div>{blog.title} - {blog.author} <button name="hide" onClick={() => {setIsExpanded(false)}}>Hide</button></div>
           <div>{blog.url}</div>
           <div>{likes} <button name="like" onClick={handleLike}>Like</button></div>
-          <div>{blog.user.username}</div>
+          <div>{blog.user.name}</div>
         </div>
       }
       {isExpanded && usernameFromBlog === usernameFromToken &&

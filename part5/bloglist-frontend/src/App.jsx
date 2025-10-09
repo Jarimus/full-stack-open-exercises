@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import LogoutField from './components/LogoutField'
@@ -34,6 +34,7 @@ const App = () => {
     }, duration * 1000)
   }
 
+  const collapseExpandRef = useRef()
   const createBlog = async (newBlog) => {
     const userData = JSON.parse(window.localStorage.getItem('bloglistAppUser'))
     blogService.setToken(userData.token)
@@ -41,6 +42,7 @@ const App = () => {
     createdBlog.user = { ...createdBlog.user, username: userData.username }
     const newBlogs = blogs.concat(createdBlog)
     setBlogs(newBlogs)
+    collapseExpandRef.current.toggleView()
   }
 
   const removeBlog = async (id) => {
@@ -63,7 +65,7 @@ const App = () => {
       <div>
         <LogoutField user={user} setUser={setUser} notify={notify} />
 
-        <CollapseExpand expandLabel={"Create new blog"} collapseLabel={"Cancel"}>
+        <CollapseExpand expandLabel={"Create new blog"} collapseLabel={"Cancel"} ref={collapseExpandRef} >
           <CreateBlogForm createBlog={createBlog} notify={notify} />
         </CollapseExpand>
         

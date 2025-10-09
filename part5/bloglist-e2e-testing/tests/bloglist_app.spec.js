@@ -1,11 +1,8 @@
-const { test, expect, beforeEach, describe, request } = require('@playwright/test')
-const { exitCode } = require('process')
+const { test, expect, beforeEach, describe } = require('@playwright/test')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
-    // Empty credentials (local storage)
-    // await page.evaluate()
-    // Empty db here
+    // Empty db
     await request.post('http://localhost:3003/api/testing/reset')
     // Create user for backend
     await request.post('http://localhost:3003/api/users', {
@@ -51,6 +48,7 @@ describe('Blog app', () => {
       await submitButton.click()
 
       await expect(page.getByRole('button', { name: 'login' })).toBeVisible()
+      await expect(page.getByText('wrong', { exact: false })).toBeVisible()
     })
   })
 
@@ -59,6 +57,7 @@ describe('Blog app', () => {
       await page.getByLabel('username').fill('jari')
       await page.getByLabel('password').fill('salasana')
       await page.getByRole('button', { name: 'login' }).click()
+      await expect(page.getByText('Logged in as', { exact: false })).toBeVisible()
     })
     test('a new blog can be created', async ({ page }) => {
       await page.getByRole('button', { name: 'Create new blog' }).click()
@@ -67,7 +66,7 @@ describe('Blog app', () => {
       await page.getByLabel('url').fill('https://blog.wisdomsummit.com/hardwork')
       await page.getByRole('button', { name: 'create blog' }).click()
 
-      await expect(page.getByText('Hard work pays off', { exact: false })).toBeVisible()
+      await expect(page.getByText('Hard work', { exact: false })).toBeVisible()
       await expect(page.getByText('Wise man', { exact: false })).toBeVisible()
       await expect(page.getByText('https://blog.wisdomsummit.com/hardwork', { exact: false })).not.toBeVisible()
     })
@@ -100,7 +99,8 @@ describe('Blog app', () => {
       })
       test('a blog can be liked', async ({ page }) => {
         // Expand a blog
-        await page.getByRole('button', { name: 'Show details' }).click()
+        const showDetailsButtons = await page.getByRole('button', { name: 'Show details' }).all()
+        showDetailsButtons[0].click()
         // Click it 3 times
         await page.getByText('Like').click({ clickCount: 3 })
         // Expect the blog to have 3 likes
@@ -134,27 +134,28 @@ describe('Blog app', () => {
         // Give the second blog a few likes
         await page.getByText('Like').click({ clickCount: 3 })
         // Refresh the page
-        await page.reload()
+        await page.reload({ waitUntil: 'domcontentloaded' })
         // Wait for the refresh to complete
-        await expect(page.getByText('Hard work')).toBeVisible()
+        await expect(page.getByText(/beauty/i)).toBeVisible()
         // Expand the first blog, expect to see url for 'Beauty and the yeast'.
         let buttonLocators = await page.getByText('Show details').all()
         await buttonLocators[0].click()
         expect(page.getByText(/https:\/\/blog.megafood.com\/yeast/)).toBeVisible()
-        // Expand the second blog, add 5 likes to it
+        // Expand the second blog, add likes to it
         await page.getByRole('button', { name: 'Show details' }).click()
-        await expect(page.getByText(/jari/)).toBeVisible()
+        await expect(page.getByText(/Jari Ahonen/)).toBeVisible()
         const likeButtons = await page.getByRole('button', { name: 'like' }).all()
-        likeButtons[1].click({ clickCount: 5 })
-        await expect(page.getByText(/5/)).toBeVisible()
+        likeButtons[1].click({ clickCount: 10 })
+        await expect(page.getByText(/10/)).toBeVisible()
         // Refresh the page again
         await page.reload()
         // Wait for the refresh to complete
-        await expect(page.getByText('Beauty')).toBeVisible()
+        await expect(page.getByText(/work/i)).toBeVisible()
         // Expand the first blog, expect to see url for 'Hard work pays off'
         buttonLocators = await page.getByText('Show details').all()
         await buttonLocators[0].click()
         expect(page.getByText(/https:\/\/blog.wisdomsummit.com\/hardwork/)).toBeVisible()
+        await expect(page.getByText(/Jari Ahonen/)).toBeVisible()
       })
     })
   })

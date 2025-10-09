@@ -64,7 +64,6 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   
   // compare userID in the blog and the token.
   const userIDblog = blog.user._id.toString()
-  console.log(`ids for deletion:\n${userIDtoken}\n${userIDblog}`)
   if (userIDtoken != userIDblog) {
     response.status(401).send({ error: "only owner can delete blogs"})
     return
