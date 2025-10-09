@@ -5,18 +5,22 @@ const jwt = require('jsonwebtoken')
 
 // Error handling
 const errorHandler = (error, request, response, next) => {
+  if (process.env.NODE_ENV === 'test') {
+    console.log(error)
+  }
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
   } else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
+    console.log('400: username needs to be unique')
     return response.status(400).json({ error: 'username needs to be unique' })
   } else if (error.name ===  'JsonWebTokenError') {
+    console.log('401: token invalid')
     return response.status(401).json({ error: 'token invalid' })
   } else if (error.name === 'TokenExpiredError') {
-    return response.status(401).json({
-      error: 'token expired'
-    })
+    console.log('401: token expired')
+    return response.status(401).json({error: 'token expired'})
   }
  next(error)
 }

@@ -39,7 +39,7 @@ const App = () => {
     const userData = JSON.parse(window.localStorage.getItem('bloglistAppUser'))
     blogService.setToken(userData.token)
     const createdBlog = await blogService.create(newBlog)
-    createdBlog.user = { ...createdBlog.user, username: userData.username }
+    createdBlog.user = { ...createdBlog.user, username: userData.username, name: userData.name }
     const newBlogs = blogs.concat(createdBlog)
     setBlogs(newBlogs)
     collapseExpandRef.current.toggleView()
@@ -69,7 +69,7 @@ const App = () => {
           <CreateBlogForm createBlog={createBlog} notify={notify} />
         </CollapseExpand>
         
-        <BlogsField blogs={blogs} notify={notify} removeBlog={removeBlog} />
+        <BlogsField blogs={blogs} notify={notify} removeBlog={removeBlog} setBlogs={setBlogs} />
       </div>
       }
 

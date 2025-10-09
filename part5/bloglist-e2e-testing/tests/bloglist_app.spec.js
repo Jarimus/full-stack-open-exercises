@@ -69,6 +69,9 @@ describe('Blog app', () => {
       await expect(page.getByText('Hard work', { exact: false })).toBeVisible()
       await expect(page.getByText('Wise man', { exact: false })).toBeVisible()
       await expect(page.getByText('https://blog.wisdomsummit.com/hardwork', { exact: false })).not.toBeVisible()
+
+      await page.getByRole('button', { name: 'Show details' }).click()
+      await expect(page.getByText('https://blog.wisdomsummit.com/hardwork')).toBeVisible()
     })
     describe('When blogs exists', () => {
       beforeEach(async ({ page, request }) => {
@@ -131,26 +134,24 @@ describe('Blog app', () => {
       test('Blogs are ordered by likes, descending', async ({ page }) => {
         // Expand the second blog
         await page.getByText('Beauty and the yeast').getByRole('button', { name: 'Show details' }).click()
-        // Give the second blog a few likes
-        await page.getByText('Like').click({ clickCount: 3 })
-        // Refresh the page
-        await page.reload({ waitUntil: 'domcontentloaded' })
-        // Wait for the refresh to complete
-        await expect(page.getByText(/beauty/i)).toBeVisible()
+        // Give the second blog a like
+        await page.getByText('Like').click()
+        // Hide the expanded blog
+        await page.getByRole('button', { name: 'Hide' }).click()
         // Expand the first blog, expect to see url for 'Beauty and the yeast'.
         let buttonLocators = await page.getByText('Show details').all()
         await buttonLocators[0].click()
         expect(page.getByText(/https:\/\/blog.megafood.com\/yeast/)).toBeVisible()
-        // Expand the second blog, add likes to it
-        await page.getByRole('button', { name: 'Show details' }).click()
+        // Hide the expanded blog
+        await page.getByRole('button', { name: 'Hide' }).click()
+        // Expand the second blog, add 2 likes to it
+        buttonLocators = await page.getByText('Show details').all()
+        await buttonLocators[1].click()
         await expect(page.getByText(/Jari Ahonen/)).toBeVisible()
-        const likeButtons = await page.getByRole('button', { name: 'like' }).all()
-        likeButtons[1].click({ clickCount: 10 })
-        await expect(page.getByText(/10/)).toBeVisible()
-        // Refresh the page again
-        await page.reload()
-        // Wait for the refresh to complete
-        await expect(page.getByText(/work/i)).toBeVisible()
+        await page.getByRole('button', { name: 'Like' }).click({ clickCount: 2 })
+        await expect(page.getByText(/2/)).toBeVisible()
+        // Hide the expanded blog
+        await page.getByRole('button', { name: 'Hide' }).click()
         // Expand the first blog, expect to see url for 'Hard work pays off'
         buttonLocators = await page.getByText('Show details').all()
         await buttonLocators[0].click()

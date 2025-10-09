@@ -1,13 +1,15 @@
 import Blog from './Blog'
 import blogService from '../services/blogs'
 
-const BlogsField = ({ blogs, notify, removeBlog }) => {
+const BlogsField = ({ blogs, notify, removeBlog, setBlogs }) => {
 
   const usernameFromToken = JSON.parse(window.localStorage.getItem('bloglistAppUser')).username
 
   const updateLikes = async (blog, newData) => {
     try {
-      blogService.update(blog.id, newData)
+      await blogService.update(blog.id, newData)
+      const newBlogs = blogs.map(b => b.id !== blog.id ? b : {...blog, likes: blog.likes + 1})
+      setBlogs(newBlogs.sort((a,b) => b.likes - a.likes ))
     } catch(error) { notify(`Error updating like: ${error}`, 'red', 2) }
   }
 
