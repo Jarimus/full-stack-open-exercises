@@ -4,16 +4,15 @@ import AnecdoteList from './components/AnecdoteList'
 import Notification from './components/Notification'
 import VisibilityFilter from './components/VisibilityFilter'
 import { useEffect } from 'react'
-import anecdoteService from './services/anecdotes'
-import { setAnecdotes } from './reducers/anecdoteReducer'
+import { initalizeAnecdotes } from './reducers/anecdoteReducer'
 
 const App = () => {
   const dispatch = useDispatch()
   useEffect(() => {
-    anecdoteService.getAll().then(anecdotes => {
-      dispatch(setAnecdotes(anecdotes))
-    })
-  }, [])
+    dispatch(initalizeAnecdotes())
+  }, [dispatch])
+  // I added dispatch to dependencies because lint told me to,
+  // but I don't really understand why.
 
   return (
     <div>
