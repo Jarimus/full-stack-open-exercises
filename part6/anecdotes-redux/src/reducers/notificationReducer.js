@@ -9,11 +9,11 @@ const notificationSlice = createSlice({
     setNotification(state, action) {
       return action.payload
     },
-    removeNotification(state, action) {
+    clearNotification(state, action) {
       return ""
     }
   }
 })
 
-export const { setNotification, removeNotification } = notificationSlice.actions
+export const { setNotification, clearNotification } = notificationSlice.actions
 export default notificationSlice.reducer
