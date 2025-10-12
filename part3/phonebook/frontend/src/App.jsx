@@ -35,10 +35,10 @@ const App = () => {
     if (window.confirm(`Delete ${targetPerson.name}?`)) {
       dbPersons
       .deletePerson(targetPerson.id)
-      .then( deletedPerson => {
-        setNotification(`${deletedPerson.name} deleted.`)
+      .then( () => {
+        setNotification(`${targetPerson.name} deleted.`)
       })
-      .catch((error) => {
+      .catch(() => {
         console.error("Resource no longer exists in database.")
         setErrorMessage("Person already removed from database.")
         setTimeout(() => {

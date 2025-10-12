@@ -61,7 +61,6 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
     return response.status(401).json({ error: 'token invalid' })
   }
 
-  
   // compare userID in the blog and the token.
   const userIDblog = blog.user._id.toString()
   if (userIDtoken != userIDblog) {

@@ -16,7 +16,17 @@ const CreateBlogForm = ({ createBlog, notify }) => {
       setTitle('')
       setAuthor('')
       setUrl('')
-    } catch { notify(`Please provide a title and a url.`, 'red', 2) }
+    } catch (error) {
+      console.log(error)
+      const errorMsg = error.response.data.error
+      if (!errorMsg) {
+        notify('Unknown error creating blog', 'red', 2)
+      } else if (errorMsg.includes('Blog validation')) {
+        notify(`Please provide a title and a url.`, 'red', 2)
+      } else {
+        notify(errorMsg, 'red', 2)
+      }
+    }
   }
 
   return (

@@ -1,20 +1,41 @@
 import axios from 'axios'
 
+const baseUrl = 'http://localhost:3001/anecdotes'
+
 export const getAnecdotes = async () => {
-  const res = await axios.get('http://localhost:3001/anecdotes')
-  return res.data
+  const response = await fetch(baseUrl)
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch anecdotes')
+  }
+
+  return await response.json()
 }
 
 export const createAnecdote = async (newAnecdote) => {
-  try {
-    const res = await axios.post('http://localhost:3001/anecdotes', newAnecdote)
-    return res.data
-  } catch(error) { throw error.response.data.error };
+  const response = await fetch(baseUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newAnecdote),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to create anecdote')
+  }
+
+  return await response.json()
 }
 
 export const updateAnecdote = async (anecdote) => {
-  try {
-    const res = await axios.put(`http://localhost:3001/anecdotes/${anecdote.id}`, { content: anecdote.content, votes: anecdote.votes })
-    return res.data
-  } catch(error) { throw error.response.data.error }
+  const response = await fetch(`${baseUrl}/${anecdote.id}`, {
+    method: "PUT",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(anecdote)
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to create anecdote')
+  }
+
+  return await response.json()
 }

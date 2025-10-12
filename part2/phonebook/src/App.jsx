@@ -2,56 +2,9 @@ import { useEffect, useState } from 'react'
 import dbPersons from './services/persons'
 import Notification from './components/Notification'
 import ErrorNotification from './components/ErrorNotification'
-
-const Filter = ({filterText, handleFilterInput}) => {
-    return(
-        <div>
-            Filter shown with
-            <input
-                type="text"
-                value={filterText}
-                onChange={handleFilterInput}
-            />
-         </div>
-    )
-}
-
-const PersonForm = ({addToPhoneBook, newNumber, newName, handleNewNameInput, handleNewNumberInput}) => {
-    return (
-        <form onSubmit={addToPhoneBook}>
-        <div>
-            name: <input type="text" value={newName} onChange={handleNewNameInput} />
-        </div>
-        <div>
-            number: <input type="tel" value={newNumber} onChange={handleNewNumberInput} />
-        </div>
-        <div>
-            <button type="submit">add</button>
-        </div>
-        </form>
-    )
-}
-
-const NumberList = ({persons, filterText, handleDeletePerson}) => {
-    return (
-        <>
-            {persons.map(person => {
-                const re = new RegExp(filterText, "i")
-                if (re.test(person.name)) {
-                    return <Person key={person.name} person={person} handleDeletePerson={() => handleDeletePerson(person)} />
-                }
-            })}
-        </>
-    )
-}
-
-const Person = ({person, handleDeletePerson}) => {
-    return (
-        <>
-            {person.name} {person.number} <button onClick={handleDeletePerson}>delete</button> <br />
-        </>
-    )
-}
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import NumberList from './components/NumberList'
 
 const App = () => {
 

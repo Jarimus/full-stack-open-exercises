@@ -4,19 +4,42 @@ import { asObject } from '../reducers/anecdoteReducer'
 const baseUrl = 'http://localhost:3001/anecdotes'
 
 const getAll = async () => {
-  const response = await axios.get(baseUrl)
-  return response.data
+  const response = await fetch(baseUrl)
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch anecdotes')
+  }
+
+  return await response.json()
 }
 
 const createNew = async (content) => {
   const object = asObject(content)
-  const response = await axios.post(baseUrl, object)
-  return response.data
+  const response = await fetch(baseUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(object),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to create anecdotes')
+  }
+
+  return await response.json()
 }
 
 const updateAnecdote = async (id, anecdoteData) => {
-  const response = await axios.put(`${baseUrl}/${id}`, anecdoteData)
-  return response.data
+  const response = await fetch(`${baseUrl}/${id}`, {
+    method: "PUT",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(anecdoteData)
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to create anecdote')
+  }
+
+  return await response.json()
 }
 
 export default { getAll, createNew, updateAnecdote }

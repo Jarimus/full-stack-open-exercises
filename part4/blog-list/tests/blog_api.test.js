@@ -258,7 +258,7 @@ describe('blogs: initial database with two entries', () => {
     response = await api.get('/api/blogs')
     const newBlogs = response.body
     
-    assert.deepStrictEqual({updatedBlog}, newBlogs.find(blog => blog.id === id))
+    assert.deepStrictEqual(updatedBlog, newBlogs.find(blog => blog.id === id))
   })
   
   test('PUT: non-existent resource', async () => {

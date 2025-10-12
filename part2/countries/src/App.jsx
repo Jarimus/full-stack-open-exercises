@@ -20,12 +20,21 @@ function App() {
 
   useEffect(() => {
     if (countries) {
-      setFilteredCountries(countries.filter( country => {
+      const newFilteredCountries  = countries.filter( country => {
         const re = new RegExp(searchTerm, "i")
         return re.test(country.name.common)
-      }))
+      })
+      setFilteredCountries(newFilteredCountries)
     }
   }, [searchTerm])
+
+  useEffect(() => {
+    if (filteredCountries && filteredCountries.length === 1) {
+      const c = filteredCountries[0]
+      const apiUrl = `http://api.weatherapi.com/v1/current.json?key=${import.meta.env.VITE_WEATHER}&q=${c.capital[0]}&aqi=no`
+      axios.get(apiUrl).then(res => setWeatherData(res.data))
+    }
+  }, [filteredCountries])
 
   const onChangeSearch = (event) => {
     setSearchTerm(event.target.value)

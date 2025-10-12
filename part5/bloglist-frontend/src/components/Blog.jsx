@@ -21,6 +21,7 @@ const Blog = ({ blog, notify, removeBlog, updateLikes, usernameFromToken }) => {
     try {
       if (window.confirm(`Remove blog "${blog.title}?`)) {
         await removeBlog(blog.id)
+        notify(`Blog ${blog.title} removed.`, 'green', 2)
       }
     } catch(error) { notify(`Error deleting blog: ${error}`, 'red', 2) }
   }

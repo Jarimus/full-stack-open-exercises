@@ -1,5 +1,3 @@
-import axios from "axios"
-
 const ResultField = ({ weatherData, setWeatherData, filteredCountries, setFilteredCountries }) => {
   // First make sure the filtered array is ready
   if (!filteredCountries) {
@@ -20,8 +18,7 @@ const ResultField = ({ weatherData, setWeatherData, filteredCountries, setFilter
       maxWidth: 300,
       border: '1px solid black',
     }
-    const apiUrl = `http://api.weatherapi.com/v1/current.json?key=${import.meta.env.VITE_WEATHER}&q=${c.capital[0]}&aqi=no`
-    axios.get(apiUrl).then(res => setWeatherData(res.data))
+    
     return (
       <>
         <h1>{c.name.common}</h1>

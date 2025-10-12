@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 
 // Error handling
 const errorHandler = (error, request, response, next) => {
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test' ||process.env.NODE_ENV === 'development') {
     console.log(error)
   }
   if (error.name === 'CastError') {

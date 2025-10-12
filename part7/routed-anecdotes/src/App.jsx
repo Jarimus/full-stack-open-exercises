@@ -4,6 +4,7 @@ import AnecdoteList from './components/AnecdoteList'
 import CreateNew from './components/CreateNew'
 import Footer from './components/Footer'
 import Menu from './components/Menu'
+import Notification from './components/Notification'
 import { Route, Routes, useMatch, useNavigate } from 'react-router-dom'
 import Anecdote from './components/Anecdote'
 
@@ -61,7 +62,7 @@ const App = () => {
     <div>
       <h1>Software anecdotes</h1>
       <Menu />
-      <div>{notification !== '' && notification}</div>
+      <Notification notification={notification} />
       <Routes>
         <Route path='/anecdotes/:id' element={<Anecdote anecdote={anecdote} />} />
         <Route path='/' element={<AnecdoteList anecdotes={anecdotes} />} />

@@ -19,9 +19,9 @@ describe('Blog component', () => {
   
     // Initially: title and author visible, the others not
     const title = screen.getByText('title always visible', { exact: false })
-    expect(title).toBeDefined()
+    expect(title).toBeVisible()
     const author = screen.getByText('author always visible', { exact: false })
-    expect(author).toBeDefined()
+    expect(author).toBeVisible()
     const likes = screen.queryByText('9000', { exact: false })
     expect(likes).toBeNull()
     const url = screen.queryByText('url initally hidden', { exact: false })
@@ -51,13 +51,13 @@ describe('Blog component', () => {
 
     // Additional fields should be visible
     const title = screen.getByText('title always visible', { exact: false })
-    expect(title).toBeDefined()
+    expect(title).toBeVisible()
     const author = screen.getByText('author always visible', { exact: false })
-    expect(author).toBeDefined()
+    expect(author).toBeVisible()
     const likes = screen.getByText('9000', { exact: false })
-    expect(likes).toBeDefined()
+    expect(likes).toBeVisible()
     const url = screen.getByText('url initally hidden', { exact: false })
-    expect(url).toBeDefined()
+    expect(url).toBeVisible()
 
   })
 
