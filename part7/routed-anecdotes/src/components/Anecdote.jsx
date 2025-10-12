@@ -1,5 +1,3 @@
-
-
 const Anecdote = ({ anecdote }) => {
   return (
     <div>
